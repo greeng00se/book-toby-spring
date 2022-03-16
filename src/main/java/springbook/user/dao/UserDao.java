@@ -13,13 +13,16 @@ import java.sql.SQLException;
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
+    private JdbcContext jdbcContext;
 
-    public UserDao(ConnectionMaker connectionMaker) {
+    public void setConnectionMaker(ConnectionMaker connectionMaker) {
+        this.jdbcContext = new JdbcContext();
+        this.jdbcContext.setConnectionMaker(connectionMaker);
         this.connectionMaker = connectionMaker;
     }
 
     public void add(final User user) throws ClassNotFoundException, SQLException {
-        jdbcContextWithStatementStrategy(
+        this.jdbcContext.workWithStatementStrategy(
             new StatementStrategy() {
                 @Override
                 public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
@@ -65,15 +68,9 @@ public class UserDao {
     }
 
     public void deleteAll() throws ClassNotFoundException, SQLException {
-        jdbcContextWithStatementStrategy(
-            new StatementStrategy() {
-                @Override
-                public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                    return c.prepareStatement("delete from users");
-                }
-            }
-        );
+        this.jdbcContext.executeSql("delete from users");
     }
+
 
     public int getCount() throws ClassNotFoundException, SQLException {
         Connection c = null;
@@ -109,22 +106,4 @@ public class UserDao {
             }
         }
     }
-
-    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException, ClassNotFoundException {
-        Connection c = null;
-        PreparedStatement ps = null;
-
-        try {
-            c = connectionMaker.makeConnection();
-            ps = stmt.makePreparedStatement(c);
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (ps != null) { try { ps.close(); } catch (SQLException e) {} }
-            if (c != null) { try { c.close(); } catch (SQLException e) {} }
-        }
-    }
-
 }

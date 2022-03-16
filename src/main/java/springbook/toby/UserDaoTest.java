@@ -1,6 +1,5 @@
 package springbook.toby;
 
-import springbook.user.dao.UserDao;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
 
@@ -10,6 +9,5 @@ public class UserDaoTest {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         ConnectionMaker connectionMaker = new DConnectionMaker();
-        UserDao userDao = new UserDao(connectionMaker);
     }
 }
