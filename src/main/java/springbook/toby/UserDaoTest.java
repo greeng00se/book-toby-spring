@@ -1,8 +1,8 @@
 package springbook.toby;
 
-import springbook.user.dao.ConnectionMaker;
-import springbook.user.dao.DConnectionMaker;
 import springbook.user.dao.UserDao;
+import springbook.user.dao.connection.ConnectionMaker;
+import springbook.user.dao.connection.DConnectionMaker;
 
 import java.sql.SQLException;
 

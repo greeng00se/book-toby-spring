@@ -1,6 +1,10 @@
 package springbook.user.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import springbook.user.dao.connection.ConnectionMaker;
+import springbook.user.dao.statement.AddStatement;
+import springbook.user.dao.statement.DeleteAllStatement;
+import springbook.user.dao.statement.StatementStrategy;
 import springbook.user.domain.User;
 
 import java.sql.Connection;
@@ -17,18 +21,8 @@ public class UserDao {
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = connectionMaker.makeConnection();
-
-        PreparedStatement ps = c.prepareStatement(
-                "insert into users(id, name, password) values(?, ?, ?)");
-
-        ps.setString(1, user.getId());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getPassword());
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
+        StatementStrategy st = new AddStatement(user);
+        jdbcContextWithStatementStrategy(st);
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -55,7 +49,6 @@ public class UserDao {
         if (user == null) {
             throw new EmptyResultDataAccessException(1);
         }
-
 
         return user;
     }
