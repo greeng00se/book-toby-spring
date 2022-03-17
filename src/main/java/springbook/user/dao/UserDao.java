@@ -1,109 +1,54 @@
 package springbook.user.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-import springbook.user.dao.connection.ConnectionMaker;
-import springbook.user.dao.statement.StatementStrategy;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import springbook.user.domain.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class UserDao {
 
-    private ConnectionMaker connectionMaker;
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
-    public void setConnectionMaker(ConnectionMaker connectionMaker) {
-        this.jdbcContext = new JdbcContext();
-        this.jdbcContext.setConnectionMaker(connectionMaker);
-        this.connectionMaker = connectionMaker;
-    }
-
-    public void add(final User user) throws ClassNotFoundException, SQLException {
-        this.jdbcContext.workWithStatementStrategy(
-            new StatementStrategy() {
-                @Override
-                public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                    PreparedStatement ps = c.prepareStatement(
-                            "insert into users(id, name, password) values(?, ?, ?)");
-
-                    ps.setString(1, user.getId());
-                    ps.setString(2, user.getName());
-                    ps.setString(3, user.getPassword());
-
-                    return ps;
-                }
-            }
-        );
-    }
-
-    public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c = connectionMaker.makeConnection();
-
-        PreparedStatement ps = c.prepareStatement(
-                "select * from users where id = ?");
-
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        User user = null;
-        if (rs.next()) {
-            user = new User();
+    private RowMapper<User> userMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
             user.setId(rs.getString("id"));
             user.setName(rs.getString("name"));
             user.setPassword(rs.getString("password"));
+            return user;
         }
+    };
 
-        rs.close();
-        ps.close();
-        c.close();
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
-        if (user == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
+    public void add(final User user) throws ClassNotFoundException, SQLException {
+        this.jdbcTemplate.update("insert into users(id, name, password) values(?, ?, ?)",
+                user.getId(), user.getName(), user.getPassword());
+    }
 
-        return user;
+    public User get(String id) throws ClassNotFoundException, SQLException {
+        return this.jdbcTemplate.queryForObject(
+                "select * from users where id = ?",
+                new Object[]{id}, this.userMapper);
     }
 
     public void deleteAll() throws ClassNotFoundException, SQLException {
-        this.jdbcContext.executeSql("delete from users");
+        this.jdbcTemplate.update("delete from users");
     }
 
 
     public int getCount() throws ClassNotFoundException, SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        return this.jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+    }
 
-        try {
-            c = connectionMaker.makeConnection();
-            ps = c.prepareStatement("select count(*) from users");
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+    public List<User> getAll() {
+        return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
     }
 }
