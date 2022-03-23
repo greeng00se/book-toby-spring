@@ -1,13 +1,20 @@
 package springbook.user.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     private String id;
     private String name;
     private String password;
+    private Level level;
+    private int login;
+    private int recommend;
 }
