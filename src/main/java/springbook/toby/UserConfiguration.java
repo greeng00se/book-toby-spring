@@ -1,15 +1,25 @@
-package springbook.user.dao;
+package springbook.toby;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import springbook.user.dao.UserDao;
+import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
+import springbook.user.service.UserService;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class DaoFactory {
+public class UserConfiguration {
+
+    @Bean
+    public UserService userService() {
+        UserService service = new UserService();
+        service.setUserDao(userDao());
+        return service;
+    }
 
     @Bean
     public UserDao userDao() {

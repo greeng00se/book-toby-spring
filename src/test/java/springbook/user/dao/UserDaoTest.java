@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import springbook.toby.UserConfiguration;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = DaoFactory.class)
+@ContextConfiguration(classes = UserConfiguration.class)
 class UserDaoTest {
 
     @Autowired
