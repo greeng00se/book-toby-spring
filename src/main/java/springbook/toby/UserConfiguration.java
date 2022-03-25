@@ -2,7 +2,9 @@ package springbook.toby;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.UserDao;
 import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
@@ -19,7 +21,13 @@ public class UserConfiguration {
         UserService service = new UserService();
         service.setUserDao(userDao());
         service.setDataSource(dataSource());
+        service.setTransactionManager(transactionManager());
         return service;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
     }
 
     @Bean
