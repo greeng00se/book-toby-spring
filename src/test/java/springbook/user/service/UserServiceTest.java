@@ -39,11 +39,11 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         users = Arrays.asList(
-                new User("userA", "박일", "springNo1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0),
-                new User("userB", "김이", "springNo2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
-                new User("userC", "성삼", "springNo3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD - 1),
-                new User("userD", "이사", "springNo4", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD),
-                new User("userE", "오오", "springNo5", Level.GOLD, 100, Integer.MAX_VALUE)
+                new User("userA", "박일", "springNo1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0, "www1@naver.com"),
+                new User("userB", "김이", "springNo2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0, "www2@naver.com"),
+                new User("userC", "성삼", "springNo3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD - 1 ,"www3@naver.com"),
+                new User("userD", "이사", "springNo4", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD, "www4@naver.com"),
+                new User("userE", "오오", "springNo5", Level.GOLD, 100, Integer.MAX_VALUE, "www5@naver.com")
         );
     }
 

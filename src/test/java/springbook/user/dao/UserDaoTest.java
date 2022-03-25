@@ -31,9 +31,9 @@ class UserDaoTest {
     @BeforeEach
     void beforeEach() {
         userDao.deleteAll();
-        this.user1 = new User("userA", "박성철", "springNo1", Level.BASIC, 1, 0);
-        this.user2 = new User("userB", "이길원", "springNo2", Level.SILVER, 55, 10);
-        this.user3 = new User("userC", "박범진", "springNo3", Level.GOLD, 100, 40);
+        this.user1 = new User("userA", "박성철", "springNo1", Level.BASIC, 1, 0, "www1@naver.com");
+        this.user2 = new User("userB", "이길원", "springNo2", Level.SILVER, 55, 10, "www2@naver.com");
+        this.user3 = new User("userC", "박범진", "springNo3", Level.GOLD, 100, 40, "www3@naver.com");
     }
 
     @Test
