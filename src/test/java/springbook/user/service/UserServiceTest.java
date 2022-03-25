@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 
@@ -89,5 +90,20 @@ class UserServiceTest {
     private void checkLevel(User user, Level expectedLevel) {
         User userUpdate = userDao.get(user.getId());
         assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
+    }
+
+    @Test
+    void upgradeAllOrNothing() {
+        TestUserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(this.userDao);
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        assertThatThrownBy(() -> testUserService.upgradeLevels())
+                .isInstanceOf(TestUserServiceException.class);
+
+        checkLevelUpgraded(users.get(1), false);
     }
 }
