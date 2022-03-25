@@ -18,6 +18,7 @@ public class UserConfiguration {
     public UserService userService() {
         UserService service = new UserService();
         service.setUserDao(userDao());
+        service.setDataSource(dataSource());
         return service;
     }
 

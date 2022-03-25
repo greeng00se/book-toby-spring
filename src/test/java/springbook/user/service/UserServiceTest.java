@@ -11,6 +11,7 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,8 +24,12 @@ import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 @ContextConfiguration(classes = UserConfiguration.class)
 class UserServiceTest {
 
-    @Autowired UserDao userDao;
-    @Autowired UserService userService;
+    @Autowired
+    UserDao userDao;
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    UserService userService;
     List<User> users;
 
     @Test
@@ -44,7 +49,7 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeLevels() {
+    void upgradeLevels() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -93,9 +98,10 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeAllOrNothing() {
+    void upgradeAllOrNothing() throws Exception {
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
+        testUserService.setDataSource(this.dataSource);
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
