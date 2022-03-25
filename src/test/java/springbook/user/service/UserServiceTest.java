@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -29,6 +30,7 @@ class UserServiceTest {
     @Autowired DataSource dataSource;
     @Autowired UserService userService;
     @Autowired PlatformTransactionManager transactionManager;
+    @Autowired MailSender mailSender;
     List<User> users;
 
     @Test
@@ -100,8 +102,8 @@ class UserServiceTest {
     void upgradeAllOrNothing() throws Exception {
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
-        testUserService.setDataSource(this.dataSource);
         testUserService.setTransactionManager(this.transactionManager);
+        testUserService.setMailSender(this.mailSender);
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);

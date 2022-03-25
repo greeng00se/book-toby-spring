@@ -4,11 +4,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.UserDao;
 import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
+import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
 
 import javax.sql.DataSource;
@@ -20,9 +22,14 @@ public class UserConfiguration {
     public UserService userService() {
         UserService service = new UserService();
         service.setUserDao(userDao());
-        service.setDataSource(dataSource());
         service.setTransactionManager(transactionManager());
+        service.setMailSender(mailSender());
         return service;
+    }
+
+    @Bean MailSender mailSender() {
+        MailSender mailSender = new DummyMailSender();
+        return mailSender;
     }
 
     @Bean
