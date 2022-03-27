@@ -12,6 +12,8 @@ import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
 import springbook.user.service.DummyMailSender;
 import springbook.user.service.UserService;
+import springbook.user.service.UserServiceImpl;
+import springbook.user.service.UserServiceTx;
 
 import javax.sql.DataSource;
 
@@ -20,9 +22,16 @@ public class UserConfiguration {
 
     @Bean
     public UserService userService() {
-        UserService service = new UserService();
+        UserServiceTx userServiceTx = new UserServiceTx();
+        userServiceTx.setUserService(userServiceImpl());
+        userServiceTx.setTransactionManager(transactionManager());
+        return userServiceTx;
+    }
+
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        UserServiceImpl service = new UserServiceImpl();
         service.setUserDao(userDao());
-        service.setTransactionManager(transactionManager());
         service.setMailSender(mailSender());
         return service;
     }

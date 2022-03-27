@@ -14,22 +14,21 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UserConfiguration.class)
 class UserServiceTest {
 
     @Autowired UserDao userDao;
-    @Autowired DataSource dataSource;
     @Autowired UserService userService;
+    @Autowired UserServiceImpl userServiceImpl;
     @Autowired PlatformTransactionManager transactionManager;
     @Autowired MailSender mailSender;
     List<User> users;
@@ -59,7 +58,7 @@ class UserServiceTest {
         }
 
         MockMailSender mockMailSender = new MockMailSender();
-        userService.setMailSender(mockMailSender);
+        userServiceImpl.setMailSender(mockMailSender);
 
         userService.upgradeLevels();
 
@@ -112,14 +111,18 @@ class UserServiceTest {
     void upgradeAllOrNothing() throws Exception {
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
-        testUserService.setTransactionManager(this.transactionManager);
         testUserService.setMailSender(this.mailSender);
+
+        UserServiceTx txUserService = new UserServiceTx();
+        txUserService.setTransactionManager(this.transactionManager);
+        txUserService.setUserService(testUserService);
+
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
 
-        assertThatThrownBy(() -> testUserService.upgradeLevels())
+        assertThatThrownBy(() -> txUserService.upgradeLevels())
                 .isInstanceOf(TestUserServiceException.class);
 
         checkLevelUpgraded(users.get(1), false);
