@@ -11,22 +11,32 @@ import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
 import springbook.user.service.DummyMailSender;
+import springbook.user.service.TxProxyFactoryBean;
 import springbook.user.service.UserService;
 import springbook.user.service.UserServiceImpl;
-import springbook.user.service.UserServiceTx;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class UserConfiguration {
 
-    @Bean
-    public UserService userService() {
-        UserServiceTx userServiceTx = new UserServiceTx();
-        userServiceTx.setUserService(userServiceImpl());
-        userServiceTx.setTransactionManager(transactionManager());
-        return userServiceTx;
+    @Bean(name = "userService")
+    public TxProxyFactoryBean txProxyFactoryBean() {
+        TxProxyFactoryBean txProxyFactoryBean = new TxProxyFactoryBean();
+        txProxyFactoryBean.setTarget(userServiceImpl());
+        txProxyFactoryBean.setTransactionManager(transactionManager());
+        txProxyFactoryBean.setPattern("upgradeLevels");
+        txProxyFactoryBean.setServiceInterface(UserService.class);
+
+        return txProxyFactoryBean;
     }
+//    @Bean
+//    public UserService userService() {
+//        UserServiceTx userServiceTx = new UserServiceTx();
+//        userServiceTx.setUserService(userServiceImpl());
+//        userServiceTx.setTransactionManager(transactionManager());
+//        return userServiceTx;
+//    }
 
     @Bean
     public UserServiceImpl userServiceImpl() {
