@@ -1,5 +1,8 @@
 package springbook.toby;
 
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -11,8 +14,7 @@ import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
 import springbook.user.service.DummyMailSender;
-import springbook.user.service.TxProxyFactoryBean;
-import springbook.user.service.UserService;
+import springbook.user.service.TransactionAdvice;
 import springbook.user.service.UserServiceImpl;
 
 import javax.sql.DataSource;
@@ -20,16 +22,46 @@ import javax.sql.DataSource;
 @Configuration
 public class UserConfiguration {
 
-    @Bean(name = "userService")
-    public TxProxyFactoryBean txProxyFactoryBean() {
-        TxProxyFactoryBean txProxyFactoryBean = new TxProxyFactoryBean();
-        txProxyFactoryBean.setTarget(userServiceImpl());
-        txProxyFactoryBean.setTransactionManager(transactionManager());
-        txProxyFactoryBean.setPattern("upgradeLevels");
-        txProxyFactoryBean.setServiceInterface(UserService.class);
-
-        return txProxyFactoryBean;
+    @Bean
+    public DefaultPointcutAdvisor transactionAdvisor() {
+        DefaultPointcutAdvisor defaultPointcutAdvisor = new DefaultPointcutAdvisor();
+        defaultPointcutAdvisor.setPointcut(transactionPointcut());
+        defaultPointcutAdvisor.setAdvice(transactionAdvice());
+        return defaultPointcutAdvisor;
     }
+
+    @Bean
+    public NameMatchMethodPointcut transactionPointcut() {
+        NameMatchMethodPointcut nameMatchMethodPointcut = new NameMatchMethodPointcut();
+        nameMatchMethodPointcut.setMappedName("upgrade*");
+        return nameMatchMethodPointcut;
+    }
+
+    @Bean
+    public TransactionAdvice transactionAdvice() {
+        TransactionAdvice transactionAdvice = new TransactionAdvice();
+        transactionAdvice.setTransactionManager(transactionManager());
+        return transactionAdvice;
+    }
+
+    @Bean(name = "userService")
+    public ProxyFactoryBean proxyFactoryBean() {
+        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+        proxyFactoryBean.setTarget(userServiceImpl());
+        proxyFactoryBean.setInterceptorNames("transactionAdvisor");
+        return proxyFactoryBean;
+    }
+
+//    @Bean(name = "userService")
+//    public TxProxyFactoryBean txProxyFactoryBean() {
+//        TxProxyFactoryBean txProxyFactoryBean = new TxProxyFactoryBean();
+//        txProxyFactoryBean.setTarget(userServiceImpl());
+//        txProxyFactoryBean.setTransactionManager(transactionManager());
+//        txProxyFactoryBean.setPattern("upgradeLevels");
+//        txProxyFactoryBean.setServiceInterface(UserService.class);
+//
+//        return txProxyFactoryBean;
+//    }
 //    @Bean
 //    public UserService userService() {
 //        UserServiceTx userServiceTx = new UserServiceTx();
