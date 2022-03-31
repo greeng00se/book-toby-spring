@@ -30,10 +30,10 @@ public class UserConfiguration {
 
     @Bean
     public UserServiceImpl userServiceImpl() {
-        UserServiceImpl service = new UserServiceImpl();
-        service.setUserDao(userDao());
-        service.setMailSender(mailSender());
-        return service;
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
+        userServiceImpl.setUserDao(userDao());
+        userServiceImpl.setMailSender(mailSender());
+        return userServiceImpl;
     }
 
     @Bean MailSender mailSender() {
