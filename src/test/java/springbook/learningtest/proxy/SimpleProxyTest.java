@@ -26,14 +26,17 @@ public class SimpleProxyTest {
 
     @Test
     public void ProxyUppercaseHandlerTest() {
-        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+        Hello dynamicProxyHello = (Hello) Proxy.newProxyInstance(
+                // 동적으로 생성되는 다이내믹 프록시 클래스 로딩에 사용할 클래스 로더
                 getClass().getClassLoader(),
+                // 구현할 인터페이스
                 new Class[] { Hello.class },
+                // 부가기능과 위임 코드를 담은 InvocationHandler
                 new UppercaseHandler(new HelloTarget())
         );
 
-        assertThat(proxiedHello.sayHello("GOOSE")).isEqualTo("HELLO GOOSE");
-        assertThat(proxiedHello.sayHi("GOOSE")).isEqualTo("HI GOOSE");
-        assertThat(proxiedHello.sayThankYou("GOOSE")).isEqualTo("THANK YOU GOOSE");
+        assertThat(dynamicProxyHello.sayHello("GOOSE")).isEqualTo("HELLO GOOSE");
+        assertThat(dynamicProxyHello.sayHi("GOOSE")).isEqualTo("HI GOOSE");
+        assertThat(dynamicProxyHello.sayThankYou("GOOSE")).isEqualTo("THANK YOU GOOSE");
     }
 }

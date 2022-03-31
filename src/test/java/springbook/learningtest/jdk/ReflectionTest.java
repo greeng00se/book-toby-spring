@@ -10,17 +10,17 @@ public class ReflectionTest {
 
     @Test
     public void invokeMethod() throws Exception {
-        String name = "Spring";
+        String name = "MacBookAir";
 
-        assertThat(name.length()).isEqualTo(6);
+        assertThat(name.length()).isEqualTo(10);
 
         Method lengthMethod = String.class.getMethod("length");
-        assertThat((Integer) lengthMethod.invoke(name)).isEqualTo(6);
+        assertThat((Integer) lengthMethod.invoke(name)).isEqualTo(10);
 
-        assertThat(name.charAt(0)).isEqualTo('S');
+        assertThat(name.charAt(0)).isEqualTo('M');
 
         Method charAtMethod = String.class.getMethod("charAt", int.class);
-        assertThat((Character) charAtMethod.invoke(name, 0)).isEqualTo('S');
+        assertThat((Character) charAtMethod.invoke(name, 0)).isEqualTo('M');
     }
 
 }
