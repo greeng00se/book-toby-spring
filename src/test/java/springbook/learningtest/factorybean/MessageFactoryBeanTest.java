@@ -25,6 +25,7 @@ class MessageFactoryBeanTest {
 
     @Test
     void getFactoryBean() {
+        // &를 빈 이름 앞에 붙이면 팩토리 빈 자체를 가져온다.
         Object factory = context.getBean("&message");
         assertThat(factory.getClass()).isEqualTo(MessageFactoryBean.class);
     }

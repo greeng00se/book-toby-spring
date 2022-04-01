@@ -1,16 +1,14 @@
 package springbook.learningtest.factorybean;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Message {
 
-    String text;
-
-    private Message(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
+    private final String text;
 
     public static Message newMessage(String text) {
         return new Message(text);

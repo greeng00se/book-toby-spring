@@ -1,13 +1,11 @@
 package springbook.learningtest.factorybean;
 
+import lombok.Setter;
 import org.springframework.beans.factory.FactoryBean;
 
+@Setter
 public class MessageFactoryBean implements FactoryBean<Message> {
     String text;
-
-    public void setText(String text) {
-        this.text = text;
-    }
 
     @Override
     public Message getObject() throws Exception {

@@ -1,6 +1,7 @@
 package springbook.toby;
 
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,11 @@ import javax.sql.DataSource;
 @Configuration
 public class UserConfiguration {
 
+    @Bean
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        return new DefaultAdvisorAutoProxyCreator();
+    }
+    
     @Bean
     public DefaultPointcutAdvisor transactionAdvisor() {
         DefaultPointcutAdvisor defaultPointcutAdvisor = new DefaultPointcutAdvisor();
