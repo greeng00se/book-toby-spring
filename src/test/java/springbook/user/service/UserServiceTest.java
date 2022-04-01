@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
@@ -12,7 +11,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
 import springbook.toby.UserConfiguration;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -29,13 +27,12 @@ import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UserConfiguration.class)
+public
 class UserServiceTest {
 
     @Autowired UserDao userDao;
     @Autowired UserService userService;
-    @Autowired UserServiceImpl userServiceImpl;
-    @Autowired PlatformTransactionManager transactionManager;
-    @Autowired MailSender mailSender;
+    @Autowired UserService testUserService;
     List<User> users;
     @Autowired
     ApplicationContext context;
@@ -43,6 +40,11 @@ class UserServiceTest {
     @Test
     void bean() {
         assertThat(this.userService).isNotNull();
+    }
+
+    @Test
+    void advisorAutoProxyCreator() {
+        assertThat(testUserService);
     }
 
     @BeforeEach
@@ -54,40 +56,6 @@ class UserServiceTest {
                 new User("userD", "이사", "springNo4", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD, "www4@naver.com"),
                 new User("userE", "오오", "springNo5", Level.GOLD, 100, Integer.MAX_VALUE, "www5@naver.com")
         );
-    }
-
-    @Test
-    @DirtiesContext
-    void upgradeLevels() throws Exception {
-        userDao.deleteAll();
-        for (User user : users) {
-            userDao.add(user);
-        }
-
-        MockMailSender mockMailSender = new MockMailSender();
-        userServiceImpl.setMailSender(mockMailSender);
-
-        userService.upgradeLevels();
-
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
-
-        List<String> request = mockMailSender.getRequests();
-        assertThat(request.size()).isEqualTo(2);
-        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
-        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
-    }
-
-    private void checkLevelUpgraded(User user, boolean upgraded) {
-        User userUpdate = userDao.get(user.getId());
-        if (upgraded) {
-            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
-        } else {
-            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
-        }
     }
 
     @Test
@@ -173,38 +141,23 @@ class UserServiceTest {
     @Test
     @DirtiesContext
     void upgradeAllOrNothing() throws Exception {
-        TestUserService testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(this.userDao);
-        testUserService.setMailSender(this.mailSender);
-
-        // 스프링이 지원하는 ProxyFactoryBean
-        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
-        txProxyFactoryBean.setTarget(testUserService);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
-
-//        TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class);
-//        txProxyFactoryBean.setTarget(testUserService);
-//        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
-
-//        TransactionHandler txHandler = new TransactionHandler();
-//        txHandler.setTarget(testUserService);
-//        txHandler.setTransactionManager(transactionManager);
-//        txHandler.setPattern("upgradeLevels");
-//
-//        UserService txUserService = (UserService) Proxy.newProxyInstance(
-//                getClass().getClassLoader(),
-//                new Class[] { UserService.class },
-//                txHandler
-//        );
-
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
 
-        assertThatThrownBy(() -> txUserService.upgradeLevels())
+        assertThatThrownBy(() -> testUserService.upgradeLevels())
                 .isInstanceOf(TestUserServiceException.class);
 
         checkLevelUpgraded(users.get(1), false);
+    }
+
+    private void checkLevelUpgraded(User user, boolean upgraded) {
+        User userUpdate = userDao.get(user.getId());
+        if (upgraded) {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
+        } else {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
+        }
     }
 }

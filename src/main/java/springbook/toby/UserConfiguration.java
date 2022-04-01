@@ -1,27 +1,32 @@
 package springbook.toby;
 
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
-import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
+import springbook.learningtest.jdk.NameMatchClassMethodPointcut;
 import springbook.user.dao.UserDao;
 import springbook.user.dao.UserDaoJdbc;
 import springbook.user.dao.connection.ConnectionMaker;
 import springbook.user.dao.connection.DConnectionMaker;
-import springbook.user.service.DummyMailSender;
-import springbook.user.service.TransactionAdvice;
-import springbook.user.service.UserServiceImpl;
+import springbook.user.service.*;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class UserConfiguration {
+
+    @Bean
+    public TestUserServiceImpl testUserService() {
+        TestUserServiceImpl testUserService = new TestUserServiceImpl();
+        testUserService.setUserDao(userDao());
+        testUserService.setMailSender(mailSender());
+        return testUserService;
+    }
 
     @Bean
     public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
@@ -37,10 +42,11 @@ public class UserConfiguration {
     }
 
     @Bean
-    public NameMatchMethodPointcut transactionPointcut() {
-        NameMatchMethodPointcut nameMatchMethodPointcut = new NameMatchMethodPointcut();
-        nameMatchMethodPointcut.setMappedName("upgrade*");
-        return nameMatchMethodPointcut;
+    public NameMatchClassMethodPointcut transactionPointcut() {
+        NameMatchClassMethodPointcut nameMatchClassMethodPointcut = new NameMatchClassMethodPointcut();
+        nameMatchClassMethodPointcut.setMappedClassName("*ServiceImpl");
+        nameMatchClassMethodPointcut.setMappedName("upgrade*");
+        return nameMatchClassMethodPointcut;
     }
 
     @Bean
@@ -50,38 +56,12 @@ public class UserConfiguration {
         return transactionAdvice;
     }
 
-    @Bean(name = "userService")
-    public ProxyFactoryBean proxyFactoryBean() {
-        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
-        proxyFactoryBean.setTarget(userServiceImpl());
-        proxyFactoryBean.setInterceptorNames("transactionAdvisor");
-        return proxyFactoryBean;
-    }
-
-//    @Bean(name = "userService")
-//    public TxProxyFactoryBean txProxyFactoryBean() {
-//        TxProxyFactoryBean txProxyFactoryBean = new TxProxyFactoryBean();
-//        txProxyFactoryBean.setTarget(userServiceImpl());
-//        txProxyFactoryBean.setTransactionManager(transactionManager());
-//        txProxyFactoryBean.setPattern("upgradeLevels");
-//        txProxyFactoryBean.setServiceInterface(UserService.class);
-//
-//        return txProxyFactoryBean;
-//    }
-//    @Bean
-//    public UserService userService() {
-//        UserServiceTx userServiceTx = new UserServiceTx();
-//        userServiceTx.setUserService(userServiceImpl());
-//        userServiceTx.setTransactionManager(transactionManager());
-//        return userServiceTx;
-//    }
-
     @Bean
-    public UserServiceImpl userServiceImpl() {
-        UserServiceImpl userServiceImpl = new UserServiceImpl();
-        userServiceImpl.setUserDao(userDao());
-        userServiceImpl.setMailSender(mailSender());
-        return userServiceImpl;
+    public UserService userService() {
+        UserServiceImpl userService = new UserServiceImpl();
+        userService.setUserDao(userDao());
+        userService.setMailSender(mailSender());
+        return userService;
     }
 
     @Bean MailSender mailSender() {
