@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import springbook.toby.UserConfiguration;
+import springbook.toby.AppContext;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -26,26 +26,14 @@ import static springbook.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = UserConfiguration.class)
-public
-class UserServiceTest {
+@ContextConfiguration(classes = AppContext.class)
+@ActiveProfiles("test")
+public class UserServiceTest {
 
     @Autowired UserDao userDao;
     @Autowired UserService userService;
     @Autowired UserService testUserService;
     List<User> users;
-    @Autowired
-    ApplicationContext context;
-
-    @Test
-    void bean() {
-        assertThat(this.userService).isNotNull();
-    }
-
-    @Test
-    void advisorAutoProxyCreator() {
-        assertThat(testUserService);
-    }
 
     @BeforeEach
     void setUp() {
@@ -160,4 +148,5 @@ class UserServiceTest {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
+
 }

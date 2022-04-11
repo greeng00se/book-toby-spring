@@ -1,5 +1,6 @@
 package springbook.user.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import springbook.user.dao.UserDao;
@@ -10,7 +11,9 @@ import java.util.List;
 
 public class UserServiceImpl implements UserService {
 
+    @Autowired
     private UserDao userDao;
+    @Autowired
     private MailSender mailSender;
 
     public void setUserDao(UserDao userDao) {

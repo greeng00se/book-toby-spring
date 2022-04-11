@@ -4,11 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import springbook.toby.UserConfiguration;
+import springbook.toby.AppContext;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
@@ -18,11 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = UserConfiguration.class)
+@ContextConfiguration(classes = AppContext.class)
 class UserDaoTest {
 
-    @Autowired
-    ApplicationContext context;
     @Autowired
     UserDao userDao;
 
@@ -107,4 +104,5 @@ class UserDaoTest {
         assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
         assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
+
 }
